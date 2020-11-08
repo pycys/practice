@@ -1,0 +1,153 @@
+﻿<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Sliding_puzzle</title>
+	<style type="text/css">
+		.ta {
+			border: solid 5px #404090;
+		}
+
+		td {
+			border: solid 1px #000;
+			width: 50px;
+			height: 50px;
+			font-size: 150%;
+			text-align: center;
+		}
+
+		.hover:hover {
+			color: #F00;
+			border-color: #F00;
+		}
+	</style>
+
+	<script type="text/javascript">
+		var label = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, ""];
+		var len = label.length;
+
+		function shuffle() {
+			var rdm, tmp;
+			for (var i = 0; i < len; i++) {
+				rdm = Math.floor(Math.random() * len)
+				tmp = label[rdm];
+				label[rdm] = label[i];
+				label[i] = tmp;
+			}
+		}
+
+		function start() {
+			var element = document.getElementById("table");
+			element.classList.add('ta');
+			do {
+				shuffle();
+				var sum = Math.floor((label.indexOf("") + 4) / 4);
+				for (var i = 0; i < len - 1; i++) {
+					if (label[i] != "") {
+						for (var j = i + 1; j < len; j++) {
+							if (label[j] != "" && label[i] > label[j]) { sum += 1; }
+						}
+					}
+				}
+			} while (sum % 2 == 1);
+
+			for (var i = 0; i < 4; i++) {
+				var tr_ = document.getElementById("tr" + i);
+				for (var j = 0; j < 4; j++) {
+					var num = i * 4 + j;
+					var element = document.createElement('td');
+					element.id = num;
+					element.innerHTML = label[num] + "";
+					document.getElementById("tr" + i).appendChild(element);
+				}
+			}
+			spacePositionSet();
+			document.getElementById("game").innerHTML = "パズルを再生成する";
+			document.getElementById("game").setAttribute("onclick", "reset()");
+			document.getElementById("correct").innerHTML = "";
+		}
+
+		function spacePositionSet() {
+			var space_position = label.indexOf("");
+			var columns = Math.floor((space_position + 4) / 4) - 1;
+			var row = (space_position + 4) % 4;
+			if (0 < row) {
+				var element = document.getElementById("" + (columns * 4 + row - 1));
+				element.classList.add("hover");
+				element.setAttribute("onclick", "move(" + label[columns * 4 + row - 1] + ")");
+			}
+			if (row < 3) {
+				var element = document.getElementById("" + (columns * 4 + row + 1));
+				element.classList.add("hover");
+				element.setAttribute("onclick", "move(" + label[columns * 4 + row + 1] + ")");
+			}
+			if (0 < columns) {
+				var element = document.getElementById("" + ((columns - 1) * 4 + row));
+				element.classList.add("hover");
+				element.setAttribute("onclick", "move(" + label[(columns - 1) * 4 + row] + ")");
+			}
+			if (columns < 3) {
+				var element = document.getElementById("" + ((columns + 1) * 4 + row));
+				element.classList.add("hover");
+				element.setAttribute("onclick", "move(" + label[(columns + 1) * 4 + row] + ")");
+			}
+		}
+
+		function reset() {
+			for (var i = 0; i < 4; i++) {
+				var tNumId = document.getElementById('tr' + i);
+				while (tNumId.lastChild) {
+					tNumId.removeChild(tNumId.lastChild);
+				}
+			}
+			start();
+		}
+
+		// 数字移動処理
+		function move(n) {
+			var elements = document.getElementsByTagName("td");
+			for (var i = 0; i < elements.length; i++) {
+				elements[i].removeAttribute("onclick");
+				elements[i].classList.remove("hover");
+			}
+			var index_sp = label.indexOf("");
+			var index_n = label.indexOf(n + 0);
+			document.getElementById(index_sp + "").innerHTML = n;
+			document.getElementById(index_n + "").innerHTML = "";
+			label[index_n + 0] = "";
+			label[index_sp + 0] = n;
+			spacePositionSet();
+			judgment();
+		}
+
+		function judgment() {
+			var count = 0;
+			for (var i = 0; i < len; i++) {
+				if (label[i] == i + 1) { count += 1; }
+				else { break; }
+			}
+			if (count == 15) {
+				var elements = document.getElementsByTagName("td");
+				for (var i = 0; i < elements.length; i++) {
+					elements[i].removeAttribute("onclick");
+					elements[i].classList.remove("hover");
+				}
+				document.getElementById("correct").innerHTML = "クリア！";
+			}
+		}
+	</script>
+</head>
+
+<body align="center">
+	<h1>スライドパズル</h1>
+	<p><button onclick="start()" id="game">ゲームスタート</button></p>
+	<table id="table" align="center">
+		<tr id="tr0"></tr>
+		<tr id="tr1"></tr>
+		<tr id="tr2"></tr>
+		<tr id="tr3"></tr>
+	</table>
+	<h2 id="correct"></h2>
+</body>
+
+</html>
